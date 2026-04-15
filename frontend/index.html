@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE ARCHIVE / BOOKS</title>
+    <!-- High-end Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="noir-theme">
+    <div class="grain-overlay"></div>
+    
+    <div class="app-layout">
+        <!-- Sidebar: Control Center -->
+        <aside class="sidebar">
+            <header class="brand">
+                <div class="logo">
+                    <span class="symbol">†</span>
+                    <h1 class="title">THE ARCHIVE</h1>
+                </div>
+                <div class="status-indicator">
+                    <span class="dot"></span>
+                    <span class="label">LIVE_DB_CONNECTED</span>
+                </div>
+            </header>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="section-tag">01 / CONTRIBUTIONS</span>
+                    <form id="addBookForm" class="noir-form">
+                        <div class="field">
+                            <label for="bookTitle">_RECORD_TITLE</label>
+                            <input type="text" id="bookTitle" placeholder="REQUIRED" required>
+                        </div>
+                        <div class="field">
+                            <label for="bookAuthor">_AUTHOR_NAME</label>
+                            <input type="text" id="bookAuthor" placeholder="REQUIRED" required>
+                        </div>
+                        <button type="submit" class="submit-trigger">
+                            <span class="line"></span>
+                            <span class="text">COMMIT_TO_ARCHIVE</span>
+                        </button>
+                    </form>
+                    <div id="addBookStatus" class="inline-feedback"></div>
+                </div>
+            </nav>
+
+            <footer class="sidebar-footer">
+                <div class="meta">
+                    <span class="version">v1.0.4 // NOIR</span>
+                    <span class="clock" id="clock">00:00:00</span>
+                </div>
+            </footer>
+        </aside>
+
+        <!-- Main Viewport: The Library -->
+        <main class="viewport">
+            <header class="viewport-header">
+                <div class="breadcrumb">ARCHIVE // INDEX // ALL_RECORDS</div>
+                <div class="controls">
+                    <button id="refreshBtn" class="refresh-action">
+                        <span class="icon">↻</span>
+                        <span class="text">SYNC</span>
+                    </button>
+                </div>
+            </header>
+
+            <section id="booksGrid" class="editorial-grid">
+                <!-- Records will be injected here -->
+            </section>
+
+            <div id="loadingSpinner" class="loader-overlay">
+                <div class="loader-ring"></div>
+                <span class="loader-label">DECRYPTING_ARCHIVE...</span>
+            </div>
+
+            <div id="emptyState" class="empty-view">
+                <h2 class="empty-msg">NULL_RECORDS_FOUND</h2>
+                <p class="empty-sub">The vault is currently empty. Please initiate a contribution.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Overlay -->
+    <div id="bookModal" class="details-overlay">
+        <div class="overlay-panel">
+            <button class="close-trigger">CLOSE_RECORD // ESC</button>
+            <div id="bookDetails" class="record-content">
+                <!-- Details injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-stack"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
