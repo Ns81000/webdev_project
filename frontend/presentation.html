@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Archive - Project Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Epilogue:wght@300;400;500&family=JetBrains+Mono:wght@100..400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-base: #f7f5f0;
+            --bg-alt: #eeeae0;
+            --text-primary: #12100f;
+            --text-muted: #4e463f;
+            --accent-1: #c95d46;
+            --accent-2: #485c4b;
+            --border-color: rgba(28, 26, 25, 0.2);
+        }
+
+        html, body {
+            width: 100%; height: 100%;
+            font-family: 'Epilogue', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        /* Frame lines */
+        .frame {
+            position: fixed; top: 1.5rem; left: 1.5rem; right: 1.5rem; bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            pointer-events: none; z-index: 50;
+        }
+
+        /* Noise overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 100; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Ambient Background */
+        .ambient-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; overflow: hidden; pointer-events: none; mix-blend-mode: multiply; opacity: 0.8;
+        }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(80px);
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 { width: 60vw; height: 60vw; background: #e8d5c4; top: -10vw; left: -10vw; animation-duration: 25s; }
+        .orb-2 { width: 50vw; height: 50vw; background: #d4d9d0; bottom: -10vw; right: -10vw; animation-duration: 30s; animation-delay: -5s; }
+        .orb-3 { width: 45vw; height: 45vw; background: #f0e6d3; top: 30vh; left: 20vw; animation-duration: 22s; animation-delay: -10s; }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(3vw, 5vh) scale(1.05) rotate(180deg); }
+            100% { transform: translate(-3vw, 2vh) scale(0.95) rotate(360deg); }
+        }
+
+        /* Slides */
+        .presentation-container {
+            width: 100vw; height: 100vh; position: relative; overflow: hidden; z-index: 10;
+        }
+
+        .slide {
+            width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;
+            opacity: 0;
+            transition: opacity 0.6s ease, transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+            transform: scale(1.05); pointer-events: none;
+            background-color: transparent !important;
+        }
+
+        .slide.active { opacity: 1; transform: scale(1); pointer-events: all; z-index: 10; transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.77, 0, 0.175, 1); }
+        .slide.prev { opacity: 0; transform: scale(0.95); transition: opacity 0.6s ease, transform 1.2s cubic-bezier(0.77, 0, 0.175, 1); }
+
+        .slide-inner {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+            transform: translateY(8vh); padding: 5rem;
+        }
+        .slide.active .slide-inner { transform: translateY(0); }
+        .slide.prev .slide-inner { transform: translateY(-8vh); }
+
+        /* Typography */
+        h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 400; }
+        .title-display { font-size: clamp(4rem, 10vw, 9rem); line-height: 0.9; letter-spacing: -3px; }
+        .title-display i { font-style: italic; color: var(--accent-1); font-weight: 500; }
+
+        .slide-title { font-size: clamp(3rem, 6vw, 5.5rem); line-height: 1.05; letter-spacing: -1.5px; margin-bottom: 2rem; font-weight: 400; }
+        .slide-title i { font-style: italic; color: var(--accent-2); font-weight: 500; }
+
+        .slide-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-1); margin-bottom: 1rem; font-weight: 600; }
+        .slide-text { font-size: 1.25rem; color: var(--text-muted); max-width: 600px; line-height: 1.7; font-weight: 400; }
+
+        .large-number { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; display: inline-block; width: 100%; font-weight: 500; }
+
+        /* Layouts */
+        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8%; max-width: 1400px; width: 100%; margin: 0 auto; }
+        .text-columns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; margin-top: 3rem; }
+
+        /* Editorial Elements */
+        .divider { width: 100%; height: 1px; background: var(--border-color); margin: 3rem 0; }
+        
+        .editorial-features {
+            display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border-color); border-left: 1px solid var(--border-color); width: 100%; max-width: 1200px; margin-top: 3rem;
+        }
+        .feature-box {
+            padding: 3rem; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); position: relative; overflow: hidden;
+            background: transparent; transition: background 0.6s ease;
+        }
+        .feature-box:hover { background: rgba(28, 26, 25, 0.02); }
+        .feature-box::before { content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 2px; background: var(--accent-2); transition: width 0.6s cubic-bezier(0.77, 0, 0.175, 1); }
+        .feature-box:hover::before { width: 100%; }
+        .feature-box h3 { font-size: 2rem; margin: 1rem 0; font-weight: 500; }
+        .feature-box p { font-size: 1.05rem; color: var(--text-muted); font-weight: 400; }
+        .feature-num { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-1); font-weight: 600; }
+
+        .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; max-width: 1200px; width: 100%; }
+        .tech-col { border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
+        .tech-col h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-primary); text-transform: uppercase; margin-bottom: 1.5rem; }
+        .tech-item { font-size: 1.1rem; color: var(--text-muted); border-bottom: 1px solid rgba(28, 26, 25, 0.05); padding: 0.75rem 0; display: flex; justify-content: space-between; }
+        .tech-item span { color: var(--accent-1); font-size: 0.8rem; }
+
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 1rem; padding: 1.25rem 2.5rem; margin-top: 3rem;
+            background: var(--text-primary); color: var(--bg-base); text-decoration: none; font-size: 1rem;
+            border-radius: 100px; border: 1px solid var(--text-primary); cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1); position: relative; overflow: hidden;
+        }
+        .cta-btn::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--accent-1); transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1); z-index: 1;
+        }
+        .cta-btn:hover::after { transform: translateY(0); }
+        .cta-btn:hover { color: var(--bg-base); border-color: var(--accent-1); }
+        .cta-btn span { position: relative; z-index: 2; transition: transform 0.5s; font-weight: 500; }
+        .cta-btn svg { position: relative; z-index: 2; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; transition: transform 0.5s; }
+        .cta-btn:hover svg { transform: translateX(5px); }
+
+        /* Animation Classes */
+        .anim { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .slide.active .anim { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.35s; }
+        .delay-3 { transition-delay: 0.5s; }
+        .delay-4 { transition-delay: 0.65s; }
+        .delay-5 { transition-delay: 0.8s; }
+
+        /* Navigation */
+        .nav-progress { position: fixed; right: 2.5rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 1.5rem; z-index: 20; }
+        .nav-dot { width: 4px; height: 30px; background: rgba(28, 26, 25, 0.15); cursor: pointer; transition: all 0.4s ease; border-radius: 2px; }
+        .nav-dot.active { background: var(--accent-1); height: 60px; }
+        .nav-dot:hover { background: var(--text-primary); }
+
+        .nav-hint { position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; z-index: 20; opacity: 0.6; }
+
+        /* Abstract Art Elements */
+        .art-circle { position: absolute; border-radius: 50%; border: 1px solid var(--accent-2); opacity: 0.2; pointer-events: none; }
+        .art-line { position: absolute; background: var(--accent-1); opacity: 0.3; pointer-events: none; }
+
+        @media (max-width: 900px) {
+            .layout-grid { grid-template-columns: 1fr; gap: 3rem; text-align: center; }
+            .editorial-features, .tech-grid, .text-columns { grid-template-columns: 1fr; }
+            .large-number { text-align: left; }
+            .nav-progress { display: none; }
+            .slide-inner { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-background">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="noise-overlay"></div>
+    <div class="frame"></div>
+
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide slide-1 active">
+            <div class="art-circle" style="width: 60vw; height: 60vw; top: -30vw; right: -20vw;"></div>
+            <div class="art-line" style="width: 1px; height: 40vh; bottom: 0; left: 15vw;"></div>
+            <div class="slide-inner">
+                <div class="layout-grid" style="align-items: center;">
+                    <div style="text-align: left;">
+                        <p class="slide-subtitle anim delay-1">Project Presentation</p>
+                        <h1 class="title-display anim delay-2">The <br><i>Archive</i></h1>
+                        <p class="slide-text anim delay-3" style="margin-top: 2rem;">A sophisticated digital library system built with modern technologies.</p>
+                    </div>
+                    <div class="anim delay-4" style="display: flex; justify-content: center;">
+                        <svg width="200" height="200" viewBox="0 0 100 100" style="opacity: 0.8;">
+                            <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="var(--accent-2)" stroke-width="0.5"/>
+                            <circle cx="50" cy="50" r="30" fill="none" stroke="var(--accent-1)" stroke-width="0.5"/>
+                            <circle cx="50" cy="50" r="10" fill="var(--text-primary)"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is The Archive -->
+        <div class="slide slide-2">
+            <div class="slide-inner">
+                <div class="layout-grid">
+                    <div>
+                        <div class="large-number anim delay-1">01 / Introduction</div>
+                        <h2 class="slide-title anim delay-2">What is <br><i>The Archive</i></h2>
+                    </div>
+                    <div>
+                        <div class="text-columns anim delay-3">
+                            <p class="slide-text">The Archive is an elegant, full-stack application that lets you discover, store, and organize books effortlessly.</p>
+                            <p class="slide-text">Think of it as your personal library in the digital age, combining the beauty of classic design with modern technology and speed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: How It Works -->
+        <div class="slide slide-3">
+            <div class="slide-inner" style="flex-direction: column; align-items: flex-start; justify-content: center; max-width: 1400px; width: 100%;">
+                <div class="large-number anim delay-1" style="width: auto;">02 / Architecture</div>
+                <h2 class="slide-title anim delay-2" style="margin-bottom: 0;">How It <i>Works</i></h2>
+                
+                <div class="editorial-features anim delay-3">
+                    <div class="feature-box">
+                        <span class="feature-num">01</span>
+                        <h3>Client Interface</h3>
+                        <p>Beautiful frontend where you manage your collection with intuitive controls and highly legible editorial typography.</p>
+                    </div>
+                    <div class="feature-box">
+                        <span class="feature-num">02</span>
+                        <h3>API Backend</h3>
+                        <p>RESTful server handling all operations—creating, reading, and updating your records seamlessly over HTTP.</p>
+                    </div>
+                    <div class="feature-box" style="border-bottom: none;">
+                        <span class="feature-num">03</span>
+                        <h3>Database</h3>
+                        <p>A robust SQLite storage engine keeping your book records safe, organized, and instantly accessible.</p>
+                    </div>
+                    <div class="feature-box" style="border-bottom: none;">
+                        <span class="feature-num">04</span>
+                        <h3>Real-time Sync</h3>
+                        <p>Every change you make in the client instantly reflects in the database, with a verified live connection status.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Key Features -->
+        <div class="slide slide-4">
+            <div class="slide-inner">
+                <div class="layout-grid">
+                    <div style="order: 2;">
+                        <div class="large-number anim delay-1">03 / Capabilities</div>
+                        <h2 class="slide-title anim delay-2">Key <i>Features</i>.</h2>
+                        <p class="slide-text anim delay-3">Designed for simplicity, built for power. Managing your digital library has never been this fluid.</p>
+                    </div>
+                    <div style="order: 1;" class="anim delay-4">
+                        <div style="border-top: 1px solid var(--border-color); padding: 1.5rem 0; display: flex; justify-content: space-between;">
+                            <span style="font-family: 'Fraunces', serif; font-size: 1.8rem; color: var(--accent-1);">I. Add Books</span>
+                            <span style="color: var(--text-muted); font-size: 0.9rem; max-width: 200px; text-align: right;">Quickly add new titles with book name and author info.</span>
+                        </div>
+                        <div style="border-top: 1px solid var(--border-color); padding: 1.5rem 0; display: flex; justify-content: space-between;">
+                            <span style="font-family: 'Fraunces', serif; font-size: 1.8rem;">II. Browse Collection</span>
+                            <span style="color: var(--text-muted); font-size: 0.9rem; max-width: 200px; text-align: right;">View all your books in an organized, searchable list.</span>
+                        </div>
+                        <div style="border-top: 1px solid var(--border-color); padding: 1.5rem 0; display: flex; justify-content: space-between;">
+                            <span style="font-family: 'Fraunces', serif; font-size: 1.8rem;">III. Delete Records</span>
+                            <span style="color: var(--text-muted); font-size: 0.9rem; max-width: 200px; text-align: right;">Remove books when they no longer belong in your archive.</span>
+                        </div>
+                        <div style="border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 1.5rem 0; display: flex; justify-content: space-between;">
+                            <span style="font-family: 'Fraunces', serif; font-size: 1.8rem;">IV. Live Database</span>
+                            <span style="color: var(--text-muted); font-size: 0.9rem; max-width: 200px; text-align: right;">Every action persists instantly to your SQLite database.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Tech Stack -->
+        <div class="slide slide-5">
+            <div class="slide-inner" style="flex-direction: column; align-items: flex-start; justify-content: center; max-width: 1400px; margin: 0 auto; width: 100%;">
+                <div class="large-number anim delay-1" style="width: auto;">04 / Infrastructure</div>
+                <h2 class="slide-title anim delay-2">Technology <i>Stack</i></h2>
+                
+                <div class="tech-grid anim delay-4" style="margin-top: 3rem;">
+                    <div class="tech-col">
+                        <h4>01. Frontend</h4>
+                        <div class="tech-item">HTML5 <span>Structure</span></div>
+                        <div class="tech-item">CSS Variables <span>Styling</span></div>
+                        <div class="tech-item">Vanilla JS <span>Logic</span></div>
+                        <div class="tech-item">Editorial UI <span>Design</span></div>
+                    </div>
+                    <div class="tech-col">
+                        <h4>02. Backend</h4>
+                        <div class="tech-item">TypeScript <span>Language</span></div>
+                        <div class="tech-item">Hono <span>Framework</span></div>
+                        <div class="tech-item">Bun <span>Runtime</span></div>
+                        <div class="tech-item">RESTful <span>API</span></div>
+                    </div>
+                    <div class="tech-col">
+                        <h4>03. Data</h4>
+                        <div class="tech-item">SQLite <span>Database</span></div>
+                        <div class="tech-item">Bun:sqlite <span>Driver</span></div>
+                        <div class="tech-item">CORS <span>Security</span></div>
+                        <div class="tech-item">Logger <span>Middleware</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Get Started -->
+        <div class="slide slide-6">
+            <div class="art-line" style="width: 30vw; height: 1px; top: 20vh; right: 0;"></div>
+            <div class="slide-inner">
+                <div class="layout-grid" style="align-items: center;">
+                    <div>
+                        <div class="large-number anim delay-1">05 / Conclusion</div>
+                        <h2 class="title-display anim delay-2" style="font-size: clamp(3rem, 7vw, 6rem);">Ready to<br><i>Build.</i></h2>
+                    </div>
+                    <div class="anim delay-3">
+                        <p class="slide-text">The Archive combines elegant design with powerful functionality.</p>
+                        <div class="text-columns" style="margin-top: 2rem;">
+                            <div>
+                                <p style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Backend</p>
+                                <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem;">Run with Bun, connect to the local SQLite database.</p>
+                            </div>
+                            <div>
+                                <p style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; text-transform: uppercase;">Frontend</p>
+                                <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem;">Open the HTML file in your browser to begin.</p>
+                            </div>
+                        </div>
+                        <a href="index.html" class="cta-btn anim delay-4">
+                            <span>Enter The Archive</span>
+                            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-progress">
+        <div class="nav-dot active" onclick="goToSlide(0)"></div>
+        <div class="nav-dot" onclick="goToSlide(1)"></div>
+        <div class="nav-dot" onclick="goToSlide(2)"></div>
+        <div class="nav-dot" onclick="goToSlide(3)"></div>
+        <div class="nav-dot" onclick="goToSlide(4)"></div>
+        <div class="nav-dot" onclick="goToSlide(5)"></div>
+    </div>
+
+    <div class="nav-hint">Scroll or arrow keys to navigate</div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 6;
+
+        function goToSlide(n) {
+            if (n === currentSlide) return;
+            
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.nav-dot');
+
+            if (n >= totalSlides) n = totalSlides - 1;
+            if (n < 0) n = 0;
+
+            currentSlide = n;
+
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                
+                if (index === currentSlide) {
+                    const anims = slide.querySelectorAll('.anim');
+                    anims.forEach(anim => {
+                        anim.style.animation = 'none';
+                        anim.offsetHeight; // trigger reflow
+                        anim.style.animation = null; 
+                    });
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() { if (currentSlide < totalSlides - 1) goToSlide(currentSlide + 1); }
+        function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { 
+                e.preventDefault(); nextSlide(); 
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { 
+                e.preventDefault(); prevSlide(); 
+            }
+        });
+
+        let wheelTimeout;
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (wheelTimeout) return;
+            wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 800); 
+            if (e.deltaY > 0) nextSlide();
+            else if (e.deltaY < 0) prevSlide();
+        }, { passive: false });
+
+        let startX = 0;
+        let startY = 0;
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX; const endY = e.changedTouches[0].clientY;
+            const deltaX = startX - endX; const deltaY = startY - endY;
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX > 0) nextSlide(); else prevSlide();
+            } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+                if (deltaY > 0) nextSlide(); else prevSlide();
+            }
+        });
+
+        // Auto Fullscreen on first interaction
+        let isFullscreenRequested = false;
+        function goFullscreen() {
+            if (isFullscreenRequested) return;
+            isFullscreenRequested = true;
+            // Most modern browsers support this standard way
+            document.documentElement.requestFullscreen?.().catch(() => {});
+        }
+        
+        document.addEventListener('click', goFullscreen, { once: true });
+        document.addEventListener('keydown', goFullscreen, { once: true });
+    </script>
+</body>
+</html>
